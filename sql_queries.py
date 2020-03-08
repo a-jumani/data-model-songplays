@@ -63,3 +63,49 @@ time_table_create = ("""
         weekday    SMALLINT NOT NULL
     )
 """)
+
+# INSERT RECORDS
+
+# assumption: all plays are unique
+songplay_table_insert = ("""
+    INSERT INTO songplays (user_id, song_id, artist_id, start_time, level,
+        session_id, location, user_agent)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+""")
+
+# on conflict, latest level will be stored against the user
+# assumption: log_data will be inserted chronologically (otherwise start_time
+# will need to be part of the table)
+user_table_insert = ("""
+    INSERT INTO users (user_id, first_name, last_name, gender, level)
+    VALUES (%s, %s, %s, %s, %s)
+    ON CONFLICT (user_id) DO UPDATE
+        SET level=EXCLUDED.level
+""")
+
+# assumption: not expecting missing fields
+song_table_insert = ("""
+    INSERT INTO songs (song_id, title, artist_id, year, duration)
+    VALUES (%s, %s, %s, %s, %s)
+    ON CONFLICT (song_id)
+    DO NOTHING
+""")
+
+# on conflict, update (location, latitude, longitude) fields if need be
+# assumption: in-existence of duplicate, non-blank (location, latitude,
+# longitude) fields
+artist_table_insert = ("""
+    INSERT INTO artists (artist_id, name, location, latitude, longitude)
+    VALUES (%s, %s, %s, %s, %s)
+    ON CONFLICT (artist_id) DO UPDATE
+        SET location=EXCLUDED.location, latitude=EXCLUDED.latitude,
+            longitude=EXCLUDED.longitude
+        WHERE artists.location = ''
+""")
+
+time_table_insert = ("""
+    INSERT INTO time (start_time, hour, day, week, month, year, weekday)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (start_time)
+    DO NOTHING
+""")
