@@ -110,6 +110,18 @@ time_table_insert = ("""
     DO NOTHING
 """)
 
+# FIND SONGS
+
+song_select = ("""
+    SELECT songs.song_id, artists.artist_id
+    FROM songs, artists
+    WHERE songs.title=%s
+          AND artists.artist_id IN (SELECT artist_id
+                                    FROM artists
+                                    WHERE name=%s)
+          AND songs.duration=%s
+""")
+
 # QUERY LISTS
 
 create_table_queries = [songplay_table_create, user_table_create,
