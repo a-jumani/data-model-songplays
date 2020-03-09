@@ -1,4 +1,5 @@
 import argparse
+import pandas as pd
 import psycopg2
 import textwrap
 from sql_queries import *
@@ -15,7 +16,19 @@ def process_song_file(cur, filepath):
     Returns:
         None
     """
-    pass
+    # open song file
+    df = pd.read_json(filepath, lines=True)
+
+    # insert song record
+    song_data = df.loc[0, ["song_id", "title", "artist_id", "year", "duration"]
+                       ].apply(str).values.tolist()
+    cur.execute(song_table_insert, song_data)
+
+    # insert artist record
+    artist_data = df.loc[0, ["artist_id", "artist_name", "artist_location",
+                             "artist_latitude", "artist_longitude"]
+                         ].values.tolist()
+    cur.execute(artist_table_insert, artist_data)
 
 
 def process_log_file(cur, filepath):
